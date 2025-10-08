@@ -1,28 +1,242 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>PDF Coordinates Map</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folder Grouped PDF Coordinates Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+   Leaflet CSS 
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
   <style>
-    #map { height: 90vh; width: 100%; }
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0d10;
+      --panel: #151a20;
+      --muted: #9ba7b4;
+      --border: #27303b;
+      --text: #eaf0f6;
+      --accent: #00b3a4;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+        Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    header {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #0f1318;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 8px;
+    }
+
+    .control label {
+      font-size: 12px;
+      color: var(--muted);
+      user-select: none;
+    }
+
+    select, input[type="text"], button {
+      appearance: none;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    select:focus, input[type="text"]:focus, button:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+
+    button {
+      cursor: pointer;
+      background: #0a2a28;
+      border-color: #124c47;
+    }
+    button:hover {
+      background: #0c3936;
+    }
+
+    #map {
+      height: calc(100vh - 56px);
+      width: 100%;
+      outline: none;
+    }
+
+    /* Colored dot marker with subtle pin */
+    .dot {
+      --c: #ff3b30;
+      width: 14px;
+      height: 14px;
+      background: var(--c);
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.35),
+        0 2px 4px rgba(0, 0, 0, 0.35);
+      position: relative;
+    }
+    .dot::after {
+      /* small stem to suggest a "pin" */
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -6px;
+      width: 2px;
+      height: 6px;
+      background: color-mix(in srgb, var(--c) 60%, #000);
+      border-radius: 1px;
+      opacity: 0.9;
+    }
+
+    /* Legend control */
+    .legend {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      line-height: 1.4;
+      max-width: 260px;
+      max-height: 220px;
+      overflow: auto;
+    }
+    .legend h3 {
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+    }
+    .legend-row {
+      display: grid;
+      grid-template-columns: 18px 1fr auto;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      padding: 4px 2px;
+      border-radius: 6px;
+    }
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.35);
+    }
+    .legend-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #dbe3ec;
+    }
+    .legend-count {
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Minimal Leaflet UI dark tuning */
+    .leaflet-control-layers {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .leaflet-control-layers-list {
+      padding: 6px;
+      max-height: 260px;
+      overflow: auto;
+    }
+    .leaflet-bar a, .leaflet-bar a:hover {
+      background-color: var(--panel);
+      border-color: var(--border);
+      color: var(--text);
+    }
   </style>
 </head>
 <body>
+  <header>
+    <h1>PDF Coordinates Map — Grouped by folder_name</h1>
+    <div class="controls">
+      <div class="control">
+        <label for="group-jump">Jump to group</label>
+        <select id="group-jump" aria-label="Jump to folder group">
+          <option value="">All groups</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="text-filter">Filter group</label>
+        <input id="text-filter" type="text" placeholder="Type to filter…" />
+        <button id="apply-filter" type="button">Apply</button>
+        <button id="reset-filter" type="button" title="Show all groups">Reset</button>
+      </div>
+      <div class="control">
+        <button id="fit-bounds" type="button" title="Fit map to all visible markers">Fit to markers</button>
+      </div>
+    </div>
+  </header>
 
-<h2 style="text-align:center;">PDF Coordinates Map</h2>
-<div id="map"></div>
+  <div id="map" role="region" aria-label="Map of coordinates"></div>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+   Leaflet JS 
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
 
-<script>
-// Sample CSV data — replace with your actual merged CSV content
-const csvData = `
+  <script>
+    // Replace with your real merged CSV. The first row must be:
+    // folder_name,pdf_name,coordinates
+    // Each subsequent row like:
+    // SomeFolder,SomeFile.pdf,14.75N; 76.44E; 14.76N; 76.45E
+    const csvData = `
 folder_name,pdf_name,coordinates
 File 1,AdityaBirlaRenewablesSolarLtd-21MW.pdf,76.499333E
 File 1,Boreas-175MW.pdf,14.749970N; 76.429936E; 14.757725N; 76.430024E; 14.779250N; 76.444090E; 14.780139N; 76.459331E; 14.778709N; 76.471045E; 76.459779E; 76.468410E; 14.786468N; 76.457701E; 14.775847N; 14.770010N; 14.776624N; 76.456307E; 14.752782N; 14.760938N; 76.429358E; 14.703531N; 76.499652E; 14.745675N; 76.433141E; 76.441741E; 14.757650N; 76.463751E; 76.468979E; 76.473204E; 14.772380N; 76.482651E; 14.763203N; 76.484400E; 14.759375N; 76.486510E; 76.476824E; 14.745871N; 76.475245E; 76.495570E; 14.751890N; 76.490992E; 14.743844N; 76.495405E; 14.755634N; 76.475097E; 76.487619E; 14.749531N; 76.451176E; 14.753116N; 76.464631E; 14.722384N; 76.506886E; 14.731998N; 76.477891E; 14.732522N; 76.465125E; 14.740560N; 76.473212E; 14.740776N; 76.497325E; 14.742159N; 76.459124E; 14.735817N; 76.465871E; 14.734621N; 14.769580N; 14.759973N; 76.389102E; 14.766028N; 76.389178E; 14.760994N; 76.373958E; 14.784204N; 76.380412E; 14.787670N; 76.381270E; 14.772403N; 76.403729E; 14.781486N; 76.384548E; 14.747078N; 76.406344E; 14.763190N; 76.387618E; 14.783358N; 76.394806E; 14.769314N; 76.385465E
@@ -263,71 +477,372 @@ NewVillage4,VillageGenerated-97.pdf,13.201748N; 76.581577E
 NewVillage4,VillageGenerated-98.pdf,13.198437N; 76.574186E
 NewVillage4,VillageGenerated-99.pdf,13.211945N; 76.608447E
 NewVillage4,VillageGenerated-100.pdf,13.203216N; 76.606764E
-`;
+`.trim();
 
-// Initialize map
-const map = L.map('map').setView([14.75, 76.4], 8);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 18,
-  attribution: '© OpenStreetMap contributors'
-}).addTo(map);
-
-// Custom colored pin icons
-const redIcon = new L.Icon({
-  iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -30]
-});
-
-const blueIcon = new L.Icon({
-  iconUrl: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -30]
-});
-
-// Function to parse coordinates from "14.75N; 76.44E" style strings
-function parseCoordinates(coordStr) {
-  const parts = coordStr.split(';').map(s => s.trim()).filter(Boolean);
-  const coords = [];
-  let lat = null, lng = null;
-
-  for (let part of parts) {
-    if (part.endsWith('N')) lat = parseFloat(part.replace('N', ''));
-    else if (part.endsWith('S')) lat = -parseFloat(part.replace('S', ''));
-    else if (part.endsWith('E')) lng = parseFloat(part.replace('E', ''));
-    else if (part.endsWith('W')) lng = -parseFloat(part.replace('W', ''));
-
-    if (lat !== null && lng !== null) {
-      coords.push([lat, lng]);
-      lat = lng = null;
+    // --------------------------
+    // Utilities
+    // --------------------------
+    function hashColor(name) {
+      // Stable HSL color per group
+      let h = 0;
+      for (let i = 0; i < name.length; i++) {
+        h = (h * 31 + name.charCodeAt(i)) >>> 0;
+      }
+      const hue = h % 360;
+      const sat = 72;  // pop
+      const light = 47; // balanced
+      return `hsl(${hue}deg ${sat}% ${light}%)`;
     }
-  }
-  return coords;
-}
 
-// Parse CSV lines
-const rows = csvData.trim().split('\n').slice(1);
-rows.forEach(line => {
-  const [folder, pdf, coordStr] = line.split(',');
-  if (!coordStr) return;
-  const coords = parseCoordinates(coordStr);
-  if (coords.length === 0) return;
+    function tokenizeCoordsString(s) {
+      // Split primarily by ';' but also handle stray whitespace
+      return s
+        .split(';')
+        .map(t => t.trim())
+        .filter(Boolean);
+    }
 
-  const isNew = folder.trim().toLowerCase().startsWith('newfolder');
-  const icon = isNew ? redIcon : blueIcon;
+    function parseCoordToken(token) {
+      // Expect formats like: 14.75N, 76.44E, 14.181525S, 76.498260E
+      // Return {type: 'lat'|'lng', value: number} or null if invalid
+      const m = token.match(/^(-?\d+(?:\.\d+)?)([NSEW])$/i);
+      if (!m) return null;
 
-  coords.forEach(([lat, lng]) => {
-    L.marker([lat, lng], { icon })
-      .addTo(map)
-      .bindPopup(`<b>${folder}</b><br>${pdf}<br>${lat}, ${lng}`);
-  });
-});
-</script>
+      const num = parseFloat(m[1]);
+      const hemi = m[2].toUpperCase();
+
+      if (hemi === 'N') return { type: 'lat', value: Math.abs(num) };
+      if (hemi === 'S') return { type: 'lat', value: -Math.abs(num) };
+      if (hemi === 'E') return { type: 'lng', value: Math.abs(num) };
+      if (hemi === 'W') return { type: 'lng', value: -Math.abs(num) };
+      return null;
+    }
+
+    function parseCoordinates(coordStr) {
+      // Robust state machine: commit a pair only when both lat & lng present
+      if (!coordStr || !coordStr.trim()) return [];
+      const tokens = tokenizeCoordsString(coordStr);
+      const pairs = [];
+      let lat = null, lng = null;
+
+      for (const t of tokens) {
+        const parsed = parseCoordToken(t);
+        if (!parsed) continue;
+
+        if (parsed.type === 'lat') {
+          lat = parsed.value;
+        } else if (parsed.type === 'lng') {
+          lng = parsed.value;
+        }
+
+        if (lat !== null && lng !== null) {
+          // Basic validity check
+          if (Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+            pairs.push([lat, lng]);
+          }
+          lat = null;
+          lng = null;
+        }
+      }
+
+      return pairs;
+    }
+
+    function splitRowInto3(row) {
+      // Safer split for 3 columns (folder, pdf, coords) without full CSV parser.
+      // We find the first two commas and slice.
+      const first = row.indexOf(',');
+      if (first === -1) return [row.trim(), '', ''];
+      const second = row.indexOf(',', first + 1);
+      if (second === -1) {
+        return [row.slice(0, first).trim(), row.slice(first + 1).trim(), ''];
+      }
+      const a = row.slice(0, first).trim();
+      const b = row.slice(first + 1, second).trim();
+      const c = row.slice(second + 1).trim();
+      return [a, b, c];
+    }
+
+    function makeDotIcon(color) {
+      return L.divIcon({
+        className: '',
+        html: `<div class="dot" style="--c: ${color}"></div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 10], // align stem to point
+        popupAnchor: [0, -10],
+        tooltipAnchor: [0, -10],
+      });
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard?.writeText(text).catch(() => {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      });
+    }
+
+    // --------------------------
+    // Initialize map
+    // --------------------------
+    const map = L.map('map', {
+      zoomControl: true,
+      preferCanvas: true,
+    }).setView([14.75, 76.4], 8);
+
+    const base = L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors',
+      }
+    ).addTo(map);
+
+    // --------------------------
+    // Parse CSV and build layers
+    // --------------------------
+    const lines = csvData.split(/\r?\n/).filter(Boolean);
+    const header = lines[0].trim().toLowerCase();
+    if (!/folder_name\s*,\s*pdf_name\s*,\s*coordinates/.test(header)) {
+      console.warn('CSV header should be "folder_name,pdf_name,coordinates". Detected:', header);
+    }
+
+    const groups = new Map(); // folder_name -> { color, layer: L.FeatureGroup, count }
+    const overlays = {}; // for Leaflet layer control
+    const bounds = L.latLngBounds([]);
+    const seen = new Set(); // dedupe: key = `${folder}|${pdf}|${lat}|${lng}`
+
+    for (let i = 1; i < lines.length; i++) {
+      const row = lines[i];
+      const [folder, pdf, coordStr] = splitRowInto3(row);
+      if (!folder && !pdf) continue;
+
+      const coords = parseCoordinates(coordStr);
+      if (!coords.length) continue;
+
+      const key = folder || 'Unknown';
+      if (!groups.has(key)) {
+        const color = hashColor(key);
+        const layer = L.featureGroup();
+        groups.set(key, { color, layer, count: 0 });
+      }
+      const g = groups.get(key);
+      const icon = makeDotIcon(g.color);
+
+      for (const [lat, lng] of coords) {
+        const dedupeKey = `${key}|${pdf}|${lat.toFixed(6)}|${lng.toFixed(6)}`;
+        if (seen.has(dedupeKey)) continue;
+        seen.add(dedupeKey);
+
+        const marker = L.marker([lat, lng], { icon });
+
+        const coordText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        marker.bindTooltip(pdf || 'Untitled', {
+          direction: 'top',
+          offset: [0, -10],
+          sticky: true
+        });
+
+        const popupHtml = `
+          <div style="min-width:220px">
+            <div style="font-weight:600; margin-bottom:4px; color:#eaf0f6">Folder</div>
+            <div style="margin-bottom:8px; color:#cfd9e3">${escapeHtml(key)}</div>
+
+            <div style="font-weight:600; margin-bottom:4px; color:#eaf0f6">PDF</div>
+            <div style="margin-bottom:8px; color:#cfd9e3">${escapeHtml(pdf)}</div>
+
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:6px;">
+              <code style="background:#0f1318; border:1px solid #27303b; padding:4px 6px; border-radius:6px; color:#dbe3ec;">${coordText}</code>
+              <button
+                type="button"
+                onclick="copyToClipboard('${coordText}')"
+                style="cursor:pointer; background:#0a2a28; color:#eaf0f6; border:1px solid #124c47; padding:6px 8px; border-radius:6px;"
+                title="Copy coordinates"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        `;
+        marker.bindPopup(popupHtml);
+
+        marker.addTo(g.layer);
+        g.count++;
+        bounds.extend([lat, lng]);
+      }
+    }
+
+    // Add all group layers to map and overlays
+    groups.forEach((g, name) => {
+      g.layer.addTo(map);
+      overlays[makeOverlayLabel(name, g.color, g.count)] = g.layer;
+    });
+
+    // --------------------------
+    // Layer control (toggle groups)
+    // --------------------------
+    L.control.layers({ OpenStreetMap: base }, overlays, {
+      collapsed: true
+    }).addTo(map);
+
+    // --------------------------
+    // Legend control (colors + counts)
+    // --------------------------
+    const Legend = L.Control.extend({
+      options: { position: 'bottomright' },
+      onAdd: function () {
+        const div = L.DomUtil.create('div', 'legend');
+        div.innerHTML = '<h3>Groups</h3><div id="legend-rows"></div>';
+        return div;
+      }
+    });
+    map.addControl(new Legend());
+    renderLegend();
+
+    function renderLegend(filterText = '') {
+      const container = document.getElementById('legend-rows');
+      if (!container) return;
+      container.innerHTML = '';
+      const q = filterText.trim().toLowerCase();
+
+      Array.from(groups.entries())
+        .sort((a, b) => b[1].count - a[1].count) // larger first
+        .forEach(([name, g]) => {
+          if (q && !name.toLowerCase().includes(q)) return;
+          const row = document.createElement('div');
+          row.className = 'legend-row';
+
+          const sw = document.createElement('div');
+          sw.className = 'legend-swatch';
+          sw.style.background = g.color;
+
+          const nm = document.createElement('div');
+          nm.className = 'legend-name';
+          nm.textContent = name;
+
+          const ct = document.createElement('div');
+          ct.className = 'legend-count';
+          ct.textContent = g.count;
+
+          row.appendChild(sw);
+          row.appendChild(nm);
+          row.appendChild(ct);
+          container.appendChild(row);
+        });
+    }
+
+    // --------------------------
+    // Fit bounds to markers
+    // --------------------------
+    function fitToAllVisible() {
+      // Compute bounds of layers currently on the map
+      const temp = L.latLngBounds([]);
+      groups.forEach(g => {
+        if (map.hasLayer(g.layer)) {
+          g.layer.eachLayer(layer => {
+            if (layer.getLatLng) temp.extend(layer.getLatLng());
+          });
+        }
+      });
+      if (temp.isValid()) {
+        map.fitBounds(temp, { padding: [24, 24] });
+      }
+    }
+
+    if (bounds.isValid()) {
+      map.fitBounds(bounds, { padding: [24, 24] });
+    }
+
+    // --------------------------
+    // UI: jump-to-group select + filter
+    // --------------------------
+    const jumpSelect = document.getElementById('group-jump');
+    const textFilter = document.getElementById('text-filter');
+    const applyFilterBtn = document.getElementById('apply-filter');
+    const resetFilterBtn = document.getElementById('reset-filter');
+    const fitBtn = document.getElementById('fit-bounds');
+
+    // Populate jump select
+    const groupNames = Array.from(groups.keys()).sort((a, b) => a.localeCompare(b));
+    for (const name of groupNames) {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      jumpSelect.appendChild(opt);
+    }
+
+    jumpSelect.addEventListener('change', () => {
+      const name = jumpSelect.value;
+      if (!name) {
+        // show all layers
+        groups.forEach(g => { if (!map.hasLayer(g.layer)) g.layer.addTo(map); });
+        fitToAllVisible();
+        return;
+      }
+      // show only selected layer
+      groups.forEach((g, n) => {
+        if (n === name) {
+          if (!map.hasLayer(g.layer)) g.layer.addTo(map);
+        } else {
+          if (map.hasLayer(g.layer)) map.removeLayer(g.layer);
+        }
+      });
+      // fit to selected
+      const g = groups.get(name);
+      if (g) {
+        const b = g.layer.getBounds();
+        if (b.isValid()) map.fitBounds(b, { padding: [24, 24] });
+      }
+    });
+
+    applyFilterBtn.addEventListener('click', () => {
+      const q = textFilter.value.trim().toLowerCase();
+      // show layers matching q, hide others
+      groups.forEach((g, name) => {
+        const match = !q || name.toLowerCase().includes(q);
+        if (match && !map.hasLayer(g.layer)) g.layer.addTo(map);
+        if (!match && map.hasLayer(g.layer)) map.removeLayer(g.layer);
+      });
+      renderLegend(q);
+      fitToAllVisible();
+    });
+
+    resetFilterBtn.addEventListener('click', () => {
+      textFilter.value = '';
+      groups.forEach(g => { if (!map.hasLayer(g.layer)) g.layer.addTo(map); });
+      renderLegend('');
+      fitToAllVisible();
+      jumpSelect.value = '';
+    });
+
+    fitBtn.addEventListener('click', fitToAllVisible);
+
+    // --------------------------
+    // Helpers
+    // --------------------------
+    function makeOverlayLabel(name, color, count) {
+      // Tiny colored circle in label
+      const swatch = `<span style="
+        display:inline-block;width:10px;height:10px;border-radius:50%;
+        vertical-align:middle;margin-right:6px;background:${color};
+        border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35);
+      "></span>`;
+      // Leaflet layer control allows HTML in label if we pass as string keys
+      return `${swatch}${escapeHtml(name)} <span style="color:#9ba7b4">(${count})</span>`;
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
 </body>
 </html>
-
-
-
-
