@@ -21,8 +21,8 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-  // Placeholder for CSV data
-  const csvData = `
+// Sample CSV data — replace with your actual merged CSV content
+const csvData = `
   folder_name,pdf_name,coordinates
 File 1,AdityaBirlaRenewablesSolarLtd-21MW.pdf,76.499333E
 File 1,Boreas-175MW.pdf,14.749970N; 76.429936E; 14.757725N; 76.430024E; 14.779250N; 76.444090E; 14.780139N; 76.459331E; 14.778709N; 76.471045E; 76.459779E; 76.468410E; 14.786468N; 76.457701E; 14.775847N; 14.770010N; 14.776624N; 76.456307E; 14.752782N; 14.760938N; 76.429358E; 14.703531N; 76.499652E; 14.745675N; 76.433141E; 76.441741E; 14.757650N; 76.463751E; 76.468979E; 76.473204E; 14.772380N; 76.482651E; 14.763203N; 76.484400E; 14.759375N; 76.486510E; 76.476824E; 14.745871N; 76.475245E; 76.495570E; 14.751890N; 76.490992E; 14.743844N; 76.495405E; 14.755634N; 76.475097E; 76.487619E; 14.749531N; 76.451176E; 14.753116N; 76.464631E; 14.722384N; 76.506886E; 14.731998N; 76.477891E; 14.732522N; 76.465125E; 14.740560N; 76.473212E; 14.740776N; 76.497325E; 14.742159N; 76.459124E; 14.735817N; 76.465871E; 14.734621N; 14.769580N; 14.759973N; 76.389102E; 14.766028N; 76.389178E; 14.760994N; 76.373958E; 14.784204N; 76.380412E; 14.787670N; 76.381270E; 14.772403N; 76.403729E; 14.781486N; 76.384548E; 14.747078N; 76.406344E; 14.763190N; 76.387618E; 14.783358N; 76.394806E; 14.769314N; 76.385465E
@@ -63,51 +63,158 @@ wind 5,SerenticaRenewabiesIndia20PrivateLtmited-300MW.pdf,-14.701936S
 wind 5,SerenticaRenewabiesIndia23MWPrivateLimited-231MW.pdf,-76.039833S; -76.024194W; -76.084722S
 wind 5,SerenticaRenewablesIndia22Privatelimitd-90MW.pdf,-76.115889S
 wind 5,ShubhWindPowerPrivateLimited-90-2MW(19-8MWWind+70-4MWSolar).pdf,76.465844E; 14.754516N; 76.501422E; 14.759093N; 76.499485E; 14.733337N; 14.763756N; 76.509353E; 14.733229N; 76.500041E; 14.741031N; 76.508231E; 14.758242N; 14.701066N; 14.716531N; 76.487756E; 6.476680E; 14.732009N; 14.738701N; 76.520082E; 76.518060E; 76.534016E; 76.534877E; 14.755014N; 14.712878N; 14.722124N; 14.718487N; 76.536954E; 76.499419E; 76.483289E; 76.466483E; 14.727334N; 14.742385N; 14.781153N; 14.775240N; 14.754354N; 76.486079E; 76.370564E; 76.373918E; 76.376397E; 714.836556N; 76.474833E; 14.836083N; 176.483222E; 14.837639N; 76.482861E; 76.480750E; 14.837750N; 76.473889E; 14.836389N; 76.472500E; 14.853333N; 76.436806E; 14.855389N; 44.861417N; 76.438500E
+NewFolder1,Generated-1.pdf,14.735957N; 76.142687E
+NewFolder1,Generated-2.pdf,14.726672N; 76.142760E
+NewFolder1,Generated-3.pdf,14.719757N; 76.140912E
+NewFolder1,Generated-4.pdf,14.758708N; 76.049749E
+NewFolder1,Generated-5.pdf,14.738454N; 76.068528E
+NewFolder1,Generated-6.pdf,14.722382N; 76.070121E
+NewFolder1,Generated-7.pdf,14.715211N; 76.070495E
+NewFolder1,Generated-8.pdf,14.708338N; 76.059242E
+NewFolder1,Generated-9.pdf,14.697807N; 76.049179E
+NewFolder1,Generated-10.pdf,14.690932N; 76.050196E
+NewFolder1,Generated-11.pdf,14.683515N; 76.051164E
+NewFolder1,Generated-12.pdf,14.687427N; 76.065568E
+NewFolder1,Generated-13.pdf,14.679964N; 76.066711E
+NewFolder1,Generated-14.pdf,14.670931N; 76.059015E
+NewFolder1,Generated-15.pdf,14.679996N; 76.102288E
+NewFolder1,Generated-16.pdf,14.776877N; 76.108071E
+NewFolder1,Generated-17.pdf,14.769925N; 76.108221E
+NewFolder1,Generated-18.pdf,14.762963N; 76.108465E
+NewFolder1,Generated-19.pdf,14.781815N; 76.120815E
+NewFolder1,Generated-20.pdf,14.773859N; 76.124741E
+NewFolder1,Generated-21.pdf,14.765903N; 76.128593E
+NewFolder1,Generated-22.pdf,14.755508N; 76.107851E
+NewFolder1,Generated-23.pdf,14.770959N; 76.086468E
+NewFolder1,Generated-24.pdf,14.764169N; 76.086750E
+NewFolder1,Generated-25.pdf,14.756920N; 76.082655E
+NewFolder2,Generated-26.pdf,14.750001N; 76.083457E
+NewFolder2,Generated-27.pdf,14.742920N; 76.083914E
+NewFolder2,Generated-28.pdf,14.735125N; 76.084414E
+NewFolder2,Generated-29.pdf,14.726677N; 76.085348E
+NewFolder2,Generated-30.pdf,14.708007N; 76.087902E
+NewFolder2,Generated-31.pdf,14.720048N; 76.089875E
+NewFolder2,Generated-32.pdf,14.747555N; 76.107402E
+NewFolder2,Generated-33.pdf,14.739591N; 76.107222E
+NewFolder2,Generated-34.pdf,14.731474N; 76.107116E
+NewFolder2,Generated-35.pdf,14.714057N; 76.098948E
+NewFolder2,Generated-36.pdf,14.695014N; 76.094172E
+NewFolder2,Generated-37.pdf,14.688222N; 76.094797E
+NewFolder2,Generated-38.pdf,14.671255N; 76.100192E
+NewFolder2,Generated-39.pdf,14.713159N; 76.146116E
+NewFolder2,Generated-40.pdf,14.769158N; 76.179045E
+NewFolder2,Generated-41.pdf,14.761949N; 76.179843E
+NewFolder2,Generated-42.pdf,14.754284N; 76.185152E
+NewFolder2,Generated-43.pdf,14.745084N; 76.184536E
+NewFolder2,Generated-44.pdf,14.734891N; 76.183914E
+NewFolder2,Generated-45.pdf,14.725577N; 76.182656E
+NewFolder2,Generated-46.pdf,14.718686N; 76.186696E
+NewFolder2,Generated-47.pdf,14.704557N; 76.184958E
+NewFolder2,Generated-48.pdf,14.759642N; 76.199571E
+NewFolder2,Generated-49.pdf,14.751022N; 76.202301E
+NewFolder2,Generated-50.pdf,14.740612N; 76.201594E
+NewFolder3,Generated-51.pdf,14.731167N; 76.203047E
+NewFolder3,Generated-52.pdf,14.707841N; 76.203690E
+NewFolder3,Generated-53.pdf,14.770445N; 76.228652E
+NewFolder3,Generated-54.pdf,14.747185N; 76.230686E
+NewFolder3,Generated-55.pdf,14.739064N; 76.231309E
+NewFolder3,Generated-56.pdf,14.730942N; 76.232071E
+NewFolder3,Generated-57.pdf,14.802073N; 76.222112E
+NewFolder3,Generated-58.pdf,14.786494N; 76.224664E
+NewFolder3,Generated-59.pdf,14.754126N; 76.251012E
+NewFolder3,Generated-60.pdf,14.743434N; 76.252373E
+NewFolder3,Generated-61.pdf,14.735152N; 76.252780E
+NewFolder3,Generated-62.pdf,14.712933N; 76.251121E
+NewFolder3,Generated-63.pdf,14.781850N; 76.259421E
+NewFolder3,Generated-64.pdf,14.771991N; 76.267047E
+NewFolder3,Generated-65.pdf,14.762123N; 76.271495E
+NewFolder3,Generated-66.pdf,14.791767N; 76.242597E
+NewFolder3,Generated-67.pdf,14.799125N; 76.275715E
+NewFolder3,Generated-68.pdf,14.792501N; 76.277070E
+NewFolder3,Generated-69.pdf,14.784046N; 76.282548E
+NewFolder3,Generated-70.pdf,14.776590N; 76.282188E
+NewFolder3,Generated-71.pdf,14.741567N; 76.278073E
+NewFolder3,Generated-72.pdf,14.698974N; 76.284418E
+NewFolder3,Generated-73.pdf,14.691108N; 76.284837E
+NewFolder3,Generated-74.pdf,14.682980N; 76.285077E
+NewFolder3,Generated-75.pdf,14.702619N; 76.311557E
+NewFolder4,Generated-76.pdf,14.695575N; 76.311924E
+NewFolder4,Generated-77.pdf,14.701531N; 76.343655E
+NewFolder4,Generated-78.pdf,14.693995N; 76.344844E
+NewFolder4,Generated-79.pdf,14.755098N; 76.275068E
+NewFolder4,Generated-80.pdf,14.676750N; 76.312759E
+NewFolder4,Generated-81.pdf,14.788385N; 76.128523E
+NewFolder4,Generated-82.pdf,14.759029N; 76.129347E
+NewFolder4,Generated-83.pdf,14.797155N; 76.166486E
+NewFolder4,Generated-84.pdf,14.790192N; 76.166895E
+NewFolder4,Generated-85.pdf,14.783321N; 76.170658E
+NewFolder4,Generated-86.pdf,14.793908N; 76.184419E
+NewFolder4,Generated-87.pdf,14.786584N; 76.188393E
+NewFolder4,Generated-88.pdf,14.723904N; 76.232998E
+NewFolder4,Generated-89.pdf,14.734645N; 76.280893E
+NewFolder4,Generated-90.pdf,14.748918N; 76.162978E
+NewFolder4,Generated-91.pdf,14.739926N; 76.162577E
 `;
 
-  // Initialize map
-  const map = L.map('map').setView([14.6, 76.4], 7);
+// Initialize map
+const map = L.map('map').setView([14.75, 76.4], 8);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
 
-  // Add OpenStreetMap tiles
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
+// Custom colored pin icons
+const redIcon = new L.Icon({
+  iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -30]
+});
 
-  // Function to parse coordinates string into [lat, lon] pairs
-  function parseCoordinates(coordStr) {
-    const coords = coordStr.split(';').map(c => c.trim()).filter(c => c);
-    const latLonPairs = [];
+const blueIcon = new L.Icon({
+  iconUrl: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -30]
+});
 
-    for (let i = 0; i < coords.length; i += 2) {
-      let latStr = coords[i];
-      let lonStr = coords[i+1];
+// Function to parse coordinates from "14.75N; 76.44E" style strings
+function parseCoordinates(coordStr) {
+  const parts = coordStr.split(';').map(s => s.trim()).filter(Boolean);
+  const coords = [];
+  let lat = null, lng = null;
 
-      if (!latStr || !lonStr) continue;
+  for (let part of parts) {
+    if (part.endsWith('N')) lat = parseFloat(part.replace('N', ''));
+    else if (part.endsWith('S')) lat = -parseFloat(part.replace('S', ''));
+    else if (part.endsWith('E')) lng = parseFloat(part.replace('E', ''));
+    else if (part.endsWith('W')) lng = -parseFloat(part.replace('W', ''));
 
-      let lat = parseFloat(latStr.replace(/[^\d\.-]/g, ''));
-      let lon = parseFloat(lonStr.replace(/[^\d\.-]/g, ''));
-
-      if (latStr.includes('S')) lat = -lat;
-      if (lonStr.includes('W')) lon = -lon;
-
-      latLonPairs.push([lat, lon]);
+    if (lat !== null && lng !== null) {
+      coords.push([lat, lng]);
+      lat = lng = null;
     }
-    return latLonPairs;
   }
+  return coords;
+}
 
-  // Parse CSV data
-  const rows = csvData.trim().split('\n').slice(1); // skip header
-  rows.forEach(row => {
-    const [folder, pdfName, coordStr] = row.split(',');
-    if (!coordStr) return; // skip empty coordinates
+// Parse CSV lines
+const rows = csvData.trim().split('\n').slice(1);
+rows.forEach(line => {
+  const [folder, pdf, coordStr] = line.split(',');
+  if (!coordStr) return;
+  const coords = parseCoordinates(coordStr);
+  if (coords.length === 0) return;
 
-    const points = parseCoordinates(coordStr);
-    points.forEach(([lat, lon]) => {
-      L.marker([lat, lon]).addTo(map)
-        .bindPopup(`<b>${pdfName}</b><br>${folder}`);
-    });
+  const isNew = folder.trim().toLowerCase().startsWith('newfolder');
+  const icon = isNew ? redIcon : blueIcon;
+
+  coords.forEach(([lat, lng]) => {
+    L.marker([lat, lng], { icon })
+      .addTo(map)
+      .bindPopup(`<b>${folder}</b><br>${pdf}<br>${lat}, ${lng}`);
   });
+});
 </script>
-
 </body>
 </html>
