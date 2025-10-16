@@ -739,7 +739,19 @@ NewFolder,Muchchanuru-Generated-100.pdf,14.440939N; 76.182823E
 
       const key = folder || 'Unknown';
       if (!groups.has(key)) {
-        const color = hashColor(key);
+        // Define fixed colors for your 6 groups
+      const groupColors = {
+      "file3": "#e6194b", // red
+  "wind 5": "#3cb44b", // green
+  "File 1": "#911eb4", // yellow
+  "file 2": "#4363d8", // blue
+  "File 4": "#f58231", // orange
+  "NewFolder": "#ffe119", // purple
+};
+
+// In the loop:
+const color = groupColors[key] || "#999999"; // fallback if not listed
+
         const layer = L.featureGroup();
         groups.set(key, { color, layer, count: 0 });
       }
@@ -959,6 +971,7 @@ NewFolder,Muchchanuru-Generated-100.pdf,14.440939N; 76.182823E
   </script>
 </body>
 </html>
+
 
 
 
